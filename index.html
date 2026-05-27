@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>呼伦贝尔 · 6天5晚</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --sf:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --serif:'Literata',Georgia,serif;
+  /* 默认强制深色（与深色地图协调）。若想要浅色版，再加一套 light token。 */
+  --bg:#000;--surface:rgba(28,28,30,.82);--surface-solid:#1c1c1e;
+  --border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.12);
+  --label:#f5f5f7;--label2:#e5e5ea;--label3:#8e8e93;--label4:#636366;
+  --accent:#0a84ff;--accent-soft:rgba(10,132,255,.18);
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:24px;
+  --shadow:0 2px 20px rgba(0,0,0,.06),0 0 1px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12),0 0 1px rgba(0,0,0,.06);
+  --blur:saturate(180%) blur(20px);
+  --panel-w:400px;
+  --d0:#bf5af2;--d1:#0a84ff;--d2:#30d158;--d3:#ff9f0a;--d4:#ff453a;--d5:#bf5af2;
+  --ease:cubic-bezier(.25,.1,.25,1);
+}
+/* （可选）未来需要浅色：加 prefers-color-scheme:light 覆盖即可 */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidden;background:var(--bg);color:var(--label)}
+
+/* ── Panel ── */
+#panel{
+  width:var(--panel-w);min-width:var(--panel-w);display:flex;flex-direction:column;
+  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border-right:1px solid var(--border);z-index:1000;
+}
+.panel-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.panel-scroll::-webkit-scrollbar{width:0}
+
+.panel-top{padding:22px 20px 16px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--label3)}
+.panel-top h1{font-family:var(--serif);font-size:1.55rem;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-top:4px}
+.panel-top .meta{font-size:12px;color:var(--label3);margin-top:6px;line-height:1.5}
+
+.trip-card{margin:0 16px 14px;padding:16px;background:var(--surface-solid);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.trip-route{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:12px;font-weight:600;color:var(--label2);margin-bottom:14px}
+.trip-route .dot{width:4px;height:4px;border-radius:50%;background:var(--label4)}
+.trip-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.trip-leg{padding:12px;background:var(--bg);border-radius:var(--r-md)}
+.trip-leg .lbl{font-size:10px;font-weight:600;color:var(--label3);letter-spacing:.04em}
+.trip-leg .time{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px;letter-spacing:-.02em}
+.trip-leg .sub{font-size:10px;color:var(--label3);margin-top:3px}
+.trip-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.badge-plan{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--accent-soft);color:var(--accent)}
+.trip-price{font-size:17px;font-weight:700;letter-spacing:-.03em}
+.trip-price small{font-size:11px;font-weight:500;color:var(--label3)}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 16px 14px}
+.metric{padding:10px 6px;text-align:center;background:var(--surface-solid);border:1px solid var(--border);border-radius:var(--r-md)}
+.metric .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.metric .v small{font-size:10px;font-weight:500;color:var(--label3)}
+.metric .l{font-size:9px;font-weight:600;color:var(--label4);margin-top:3px;letter-spacing:.03em}
+
+/* Day segmented control */
+.day-picker{padding:0 16px 12px;position:sticky;top:0;z-index:5;background:linear-gradient(var(--surface) 70%,transparent)}
+.seg-wrap{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.seg-wrap::-webkit-scrollbar{display:none}
+.seg{
+  flex:0 0 auto;padding:8px 14px;border-radius:var(--r-xl);cursor:pointer;user-select:none;
+  border:1px solid var(--border);background:var(--surface-solid);transition:all .22s var(--ease);
+  text-align:center;min-width:56px;
+}
+.seg:hover{background:var(--bg)}
+.seg.on{background:var(--c);border-color:transparent;color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--c) 40%,transparent)}
+.seg .d{font-size:13px;font-weight:700;letter-spacing:-.02em}
+.seg .t{font-size:10px;margin-top:1px;opacity:.85}
+.seg.on .t{opacity:.9}
+
+/* Timeline */
+.tl-zone{padding:4px 16px 28px}
+.day-head{margin-bottom:14px}
+.day-head h2{font-size:17px;font-weight:700;letter-spacing:-.03em}
+.day-head p{font-size:12px;color:var(--label3);margin-top:4px;line-height:1.55}
+
+.overview-card{
+  padding:14px 16px;margin-bottom:10px;background:var(--surface-solid);border:1px solid var(--border);
+  border-radius:var(--r-lg);cursor:pointer;transition:transform .2s var(--ease),box-shadow .2s var(--ease);
+}
+.overview-card:hover{transform:scale(1.01);box-shadow:var(--shadow)}
+.overview-card:active{transform:scale(.99)}
+.oc-row{display:flex;align-items:center;gap:10px}
+.oc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.oc-title{font-size:14px;font-weight:600;letter-spacing:-.02em}
+.oc-sub{font-size:11px;color:var(--label3);margin-top:3px;line-height:1.45}
+
+/* Stop cards */
+.stop{display:flex;gap:12px;margin-bottom:4px;cursor:pointer;animation:rise .45s var(--ease) both;animation-delay:calc(var(--i,0)*35ms)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;translateY(0)}}
+.stop.on .stop-card{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.stop.hl .stop-card{background:color-mix(in srgb,var(--c) 6%,var(--surface-solid))}
+.stop-rail{width:20px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:18px}
+.stop-dot{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 25%,transparent)}
+.stop-dot.start{width:11px;height:11px}
+.stop-line{flex:1;width:2px;margin:4px 0;background:linear-gradient(180deg,var(--c),var(--border));min-height:12px;border-radius:1px}
+.stop-card{
+  flex:1;display:flex;gap:12px;padding:10px;background:var(--surface-solid);
+  border:1px solid var(--border);border-radius:var(--r-lg);transition:all .22s var(--ease);overflow:hidden;
+}
+.stop-card:hover{box-shadow:var(--shadow)}
+.stop-thumb{
+  width:88px;aspect-ratio:4/3;flex-shrink:0;border-radius:var(--r-md);overflow:hidden;
+  background:var(--bg);position:relative;
+}
+.poi-img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;border-radius:inherit}
+.stop-body{flex:1;min-width:0;padding:2px 4px 2px 0}
+.stop-name{font-size:14px;font-weight:600;letter-spacing:-.02em;line-height:1.3}
+.stop-time{font-size:11px;font-weight:600;color:var(--c);margin-top:3px}
+.stop-desc{font-size:11px;color:var(--label3);margin-top:5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stop-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.stop-tags span{font-size:9px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--bg);color:var(--label3)}
+
+.leg-row{display:flex;align-items:center;gap:8px;padding:6px 0 6px 32px;cursor:pointer}
+.leg-row .bar{flex:1;height:1px;background:linear-gradient(90deg,var(--c),transparent);opacity:.35}
+.leg-pill{
+  font-size:10px;font-weight:600;color:var(--label3);padding:4px 10px;border-radius:20px;
+  background:var(--bg);border:1px solid var(--border);white-space:nowrap;transition:all .2s;
+}
+.leg-row:hover .leg-pill,.leg-row.on .leg-pill{color:var(--c);border-color:color-mix(in srgb,var(--c) 35%,var(--border));background:color-mix(in srgb,var(--c) 8%,var(--bg))}
+
+.hint-box{text-align:center;padding:32px 20px;color:var(--label3);font-size:13px;line-height:1.6}
+.hint-box .icon{font-size:40px;margin-bottom:12px;opacity:.5}
+
+/* ── Map ── */
+#map-wrap{flex:1;position:relative;background:#000}
+#map{position:absolute;inset:0}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.78) contrast(.9) saturate(.7)}
+.leaflet-control-zoom{border:none!important;box-shadow:var(--shadow-lg)!important;border-radius:var(--r-md)!important;overflow:hidden}
+.leaflet-control-zoom a{background:var(--surface-solid)!important;color:var(--label)!important;border:none!important;width:36px!important;height:36px!important;line-height:36px!important;font-size:16px!important}
+.leaflet-control-zoom a:hover{background:var(--bg)!important}
+
+.map-chrome{position:absolute;inset:0;pointer-events:none;z-index:800}
+.map-chrome>*{pointer-events:auto}
+
+.glass{
+  background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--border);box-shadow:var(--shadow);
+}
+
+.prog{
+  position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;transition:opacity .4s;
+}
+.prog-inner{padding:10px 18px;border-radius:var(--r-xl);font-size:12px;font-weight:600;color:var(--label2);white-space:nowrap}
+.prog-track{width:160px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;width:0}
+
+/* 图例与顶部 Day Tabs 重复，移除 */
+
+.kbd-h{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  padding:6px 14px;border-radius:20px;font-size:11px;color:var(--label3);
+  opacity:0;transition:opacity .4s;
+}
+.kbd-h.show{opacity:1}
+.kbd-h kbd{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;background:var(--bg);border:1px solid var(--border);font-family:inherit}
+
+/* Markers — divIcon 必须设非零 iconSize，否则 Leaflet 裁成 0×0 看不见 */
+.leaflet-div-icon.poi-mk-icon{background:transparent!important;border:none!important}
+.mk-pin{
+  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:12px;border:2px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.22);
+  transition:transform .25s var(--ease);
+}
+.mk-pin.lg{width:26px;height:26px;font-size:13px}
+.leaflet-marker-icon.poi-mk-icon.mk-hl-marker .mk-pin{transform:scale(1.1)}
+.mk-name-tip{
+  background:rgba(28,28,30,.9)!important;border:1px solid rgba(255,255,255,.14)!important;
+  color:#f5f5f7!important;font-family:var(--sf)!important;font-size:10px!important;font-weight:600!important;
+  padding:3px 9px!important;border-radius:7px!important;box-shadow:0 2px 10px rgba(0,0,0,.45)!important;
+  white-space:nowrap!important;margin:0!important;
+}
+.mk-name-tip::before{display:none!important}
+
+/* Popups */
+.leaflet-popup-content-wrapper{
+  background:rgba(28,28,30,.92)!important;border-radius:var(--r-lg)!important;
+  box-shadow:var(--shadow-lg)!important;border:1px solid var(--border)!important;
+  padding:0!important;overflow:hidden;
+  width:320px!important;max-width:320px!important;min-width:320px!important;
+}
+.leaflet-popup-tip{background:rgba(28,28,30,.92)!important}
+.leaflet-popup-content{margin:0!important;font-family:var(--sf)!important;width:320px!important}
+.pp-hero{aspect-ratio:4/3;width:100%;max-height:240px;background:var(--bg);position:relative;overflow:hidden}
+.pp-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.55))}
+.pp-hero-cap{position:absolute;bottom:12px;left:16px;right:16px;z-index:1;color:#fff}
+.pp-hero-cap h3{font-size:18px;font-weight:700;letter-spacing:-.03em;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.pp-hero-cap .day-tag{font-size:10px;font-weight:700;margin-top:4px;opacity:.9}
+.pp-body{padding:14px 16px 16px}
+.pp-desc{font-size:13px;color:var(--label2);line-height:1.55}
+.pp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.pp-tags span{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--bg);color:var(--label3)}
+.pp-meta{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--label3)}
+.pp-meta strong{color:var(--label);font-weight:600}
+
+.rt-tip{
+  background:rgba(28,28,30,.92)!important;border:1px solid var(--border)!important;
+  color:var(--label)!important;font-family:var(--sf)!important;padding:10px 14px!important;
+  border-radius:var(--r-md)!important;font-size:12px!important;box-shadow:var(--shadow-lg)!important;
+}
+.map-lb{font-weight:600;font-size:12px;color:rgba(255,255,255,.22);text-shadow:none;pointer-events:none;letter-spacing:.15em}
+.fly-line{animation:flyDash 1.2s linear infinite}
+@keyframes flyDash{to{stroke-dashoffset:-18}}
+
+/* Mobile */
+.btn-icon{
+  display:none;position:fixed;z-index:1100;border:none;cursor:pointer;
+  width:44px;height:44px;border-radius:50%;align-items:center;justify-content:center;
+  font-size:18px;color:var(--label);
+  left:16px;top:max(16px,env(safe-area-inset-top));
+}
+.btn-fit{
+  display:none;position:fixed;z-index:1100;border:none;cursor:pointer;
+  left:16px;bottom:max(20px,env(safe-area-inset-bottom));
+  padding:10px 16px;border-radius:var(--r-xl);font-size:12px;font-weight:600;color:var(--label2);
+}
+@media(max-width:900px){
+  .btn-icon,.btn-fit{display:flex}
+  body{flex-direction:column}
+  #map-wrap{flex:1;width:100%;height:auto;min-height:0}
+  /* bottom sheet panel */
+  #panel{
+    position:fixed;left:0;right:0;bottom:0;top:auto;
+    width:100%;min-width:0;max-height:min(72vh,640px);
+    border-right:none;border-top:1px solid var(--border);
+    border-radius:18px 18px 0 0;
+    transform:translateY(105%);transition:transform .35s var(--ease);
+    box-shadow:var(--shadow-lg);
+  }
+  #panel.open{transform:translateY(0)}
+  /* thumb-safe close button */
+  #sbToggle{left:12px;top:max(12px,env(safe-area-inset-top))}
+  /* legend removed */
+  .prog{bottom:10px}
+  /* popups: fit phone width */
+  .leaflet-popup-content-wrapper{width:min(320px,calc(100vw - 36px))!important;min-width:min(320px,calc(100vw - 36px))!important;max-width:min(320px,calc(100vw - 36px))!important}
+  .leaflet-popup-content{width:min(320px,calc(100vw - 36px))!important}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<button type="button" class="btn-icon glass" id="sbToggle" aria-label="行程">☰</button>
+<button type="button" class="btn-fit glass" id="fitBtn">适配视野</button>
+
+<aside id="panel">
+  <div class="panel-top">
+    <div class="eyebrow">Inner Mongolia · 2025</div>
+    <h1>呼伦贝尔</h1>
+    <p class="meta">7/30 — 8/4 · 6 天 5 晚 · 上海 ⇄ 海拉尔</p>
+  </div>
+
+  <div class="panel-scroll">
+    <div class="trip-card">
+      <div class="trip-route">
+        <span>近铁</span><span class="dot"></span><span>浦东 T2</span><span class="dot"></span><span>海拉尔</span><span class="dot"></span><span>虹桥 T2</span>
+      </div>
+      <div class="trip-grid">
+        <div class="trip-leg">
+          <div class="lbl">去程 · 7/30 周四</div>
+          <div class="time">16:35 → 20:15</div>
+          <div class="sub">吉祥 HO1135 · 约 3h40m</div>
+        </div>
+        <div class="trip-leg">
+          <div class="lbl">返程 · 8/4 周二</div>
+          <div class="time">14:25 → 18:00</div>
+          <div class="sub">吉祥航空 · 约 3h35m</div>
+        </div>
+      </div>
+      <div class="trip-foot">
+        <span style="font-size:11px;color:var(--label3)">请假 7/31 · 8/3 · 8/4</span>
+        <span class="trip-price">¥3020<small>/人</small></span>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="v" id="mDrive">—</div><div class="l">自驾</div></div>
+      <div class="metric"><div class="v" id="mDriveT">—</div><div class="l">车程</div></div>
+      <div class="metric"><div class="v" id="mFly">—</div><div class="l">飞行</div></div>
+      <div class="metric"><div class="v">6<small>天</small>5<small>晚</small></div><div class="l">行程</div></div>
+    </div>
+
+    <div class="day-picker">
+      <div class="seg-wrap" id="daySeg"></div>
+    </div>
+
+    <div class="tl-zone" id="timeline"></div>
+  </div>
+</aside>
+
+<main id="map-wrap">
+  <div id="map"></div>
+  <div class="map-chrome">
+    <div class="kbd-h glass" id="kbdH"><kbd>0</kbd>–<kbd>5</kbd> 切换 · <kbd>Esc</kbd> 全览</div>
+    <div id="prog" class="prog glass">
+      <div class="prog-inner" id="pLb">正在规划路线…</div>
+      <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const DC={0:'#bf5af2',1:'#0a84ff',2:'#30d158',3:'#ff9f0a',4:'#ff453a',5:'#bf5af2'};
+let SUMMARY={driveKm:0,driveDur:0};
+let DAY_STATS={};
+const DAY_META=[
+  {d:'all',label:'全程',sub:'总览',c:'var(--label3)'},
+  {d:0,label:'D0',sub:'7/30',c:'var(--d0)'},
+  {d:1,label:'D1',sub:'额尔古纳',c:'var(--d1)'},
+  {d:2,label:'D2',sub:'黑山头',c:'var(--d2)'},
+  {d:3,label:'D3',sub:'满洲里',c:'var(--d3)'},
+  {d:4,label:'D4',sub:'海拉尔',c:'var(--d4)'},
+  {d:5,label:'D5',sub:'返程',c:'var(--d5)'}
+];
+// 图片：建议把景点图片放到 `assets/poi/` 下，文件名用 poi.id，如 `moergele.jpg`
+// 没有图片时，会用高级渐变占位（不会再出现“图不对应景点”的问题）
+const IMG_BASE='assets/poi/';
+const IMG_ALIAS={eerge2:'eerge',hst2:'hst',mzl2:'manzhouli',hailar2:'hailar',hle_arr:'hailar',hle_dep:'hailar',hongqiao:'hailar'};
+const POIS=[
+  {id:'jintie',day:0,name:'近铁城市广场',lat:31.232492,lng:121.381700,time:'14:00 集合',desc:'普陀真北路818号，集合出发前往浦东',type:'start',icon:'🏬'},
+  {id:'pudong',day:0,name:'浦东机场 T2',lat:31.142267,lng:121.808682,time:'16:35 起飞',desc:'吉祥航空 HO1135 · 飞行约 3h40m',type:'transit',icon:'✈️'},
+  {id:'hle_arr',day:0,name:'海拉尔机场',lat:49.209297,lng:119.830312,time:'20:15 落地',desc:'入住海拉尔市区，休整明日出发',type:'stay',icon:'🛬',img:'https://images.unsplash.com/photo-1436491865339-d07a10a9a5a9?w=800&q=80'},
+  {id:'hailar',day:1,name:'海拉尔',lat:49.234715,lng:119.824542,time:'08:30 出发',desc:'行程起点 · 取车出发',type:'start',icon:'🏙️',img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'},
+  {id:'moergele',day:1,name:'莫尔格勒河',lat:49.260317,lng:119.299165,time:'09:30 — 11:30',desc:'天下第一曲水 · 草原河谷航拍',type:'scenic',icon:'🌊',tags:['曲水','航拍','免费'],img:'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'},
+  {id:'shidi',day:1,name:'额尔古纳国家湿地公园',lat:50.360025,lng:120.415101,time:'14:00 — 17:30',desc:'根河湿地 · 木栈道观鸟与落日',type:'scenic',icon:'🌅',tags:['国家湿地','栈道','门票'],img:'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80'},
+  {id:'eerge',day:1,name:'额尔古纳',lat:50.243102,lng:120.180506,time:'19:00 入住',desc:'当晚住额尔古纳市区',type:'stay',icon:'🏨',img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'},
+  {id:'eerge2',day:2,name:'额尔古纳',lat:50.243102,lng:120.180506,time:'08:30 出发',desc:'D2 出发 · 向北进入林区',type:'start',icon:'🏙️',noMarker:true,img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'},
+  {id:'birch',day:2,name:'白桦林景区',lat:50.538147,lng:120.160433,time:'10:30 — 11:30',desc:'201省道旁 · 白桦林人像与丁达尔光',type:'scenic',icon:'🌳',tags:['白桦','人像','门票'],img:'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80'},
+  {id:'enhe',day:2,name:'恩和俄罗斯民族乡',lat:50.822878,lng:119.913790,time:'12:00 — 13:30',desc:'木刻楞建筑 · 列巴午餐',type:'scenic',icon:'🏡',tags:['俄式','人文','午餐'],img:'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80'},
+  {id:'ka7',day:2,name:'七卡',lat:50.707756,lng:119.460300,noMarker:true},
+  {id:'ka5',day:2,name:'五卡',lat:50.360932,lng:119.178117,noMarker:true},
+  {id:'wulan',day:2,name:'额尔古纳河乌兰山',lat:50.603812,lng:119.451961,time:'16:30 — 17:30',desc:'登高俯瞰河谷 · 可选滑草',type:'experience',icon:'⛰️',tags:['滑草','观景','门票'],img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'},
+  {id:'hst',day:2,name:'黑山头',lat:50.215675,lng:119.578229,time:'18:00 — 20:00',desc:'骑马看日落 · 住蒙古包',type:'stay',icon:'🐴',tags:['骑马','日落','蒙古包'],img:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80'},
+  {id:'hst2',day:3,name:'黑山头',lat:50.215675,lng:119.578229,time:'08:00',desc:'D3 出发 · 上午安排访牧户',type:'start',icon:'🏘️',noMarker:true,img:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80'},
+  {id:'herder',day:3,name:'访牧户体验',lat:50.207944,lng:119.603094,time:'08:30 — 10:00',desc:'挤牛奶、喂羊羔、奶茶制作等',type:'experience',icon:'🐄',tags:['访牧户','约1.5h'],img:'https://images.unsplash.com/photo-1560493676-04071c709f99?w=800&q=80'},
+  {id:'rainbow',day:3,name:'186彩带河',lat:49.962573,lng:119.034798,time:'11:30 — 12:30',desc:'边防公路186公里处 · S形彩带河',type:'scenic',icon:'🌈',tags:['彩带河','登顶','门票'],img:'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'},
+  {id:'manzhouli',day:3,name:'满洲里',lat:49.575725,lng:117.442025,time:'15:00 抵达',desc:'国门 / 套娃 / 中苏街 · 俄式晚餐',type:'stay',icon:'🏛️',tags:['国门','套娃','西餐'],img:'https://images.unsplash.com/photo-1555992336-fb0d66d5fb7e?w=800&q=80'},
+  {id:'mzl2',day:4,name:'满洲里',lat:49.575725,lng:117.442025,time:'上午自由逛',desc:'睡到自然醒 · 中饭后出发',type:'start',icon:'🏛️',noMarker:true,img:'https://images.unsplash.com/photo-1555992336-fb0d66d5fb7e?w=800&q=80'},
+  {id:'hulun',day:4,name:'金海岸旅游景点',lat:48.845359,lng:116.973026,time:'14:00 — 15:30',desc:'203省道 · 东庙嘎查 · 呼伦湖西岸金海岸',type:'scenic',icon:'🏖️',tags:['金海岸','东庙嘎查','门票'],img:'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80'},
+  {id:'hailar2',day:4,name:'海拉尔',lat:49.234715,lng:119.824542,time:'17:30 抵达',desc:'蒙餐收官 · 手把肉 / 烤羊排',type:'stay',icon:'🏙️',noMarker:true,tags:['蒙餐','收官'],img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80'},
+  {id:'hle_dep',day:5,name:'海拉尔机场',lat:49.209297,lng:119.830312,time:'14:25 起飞',desc:'吉祥航空返沪 · 约 3h35m',type:'start',icon:'🛫',img:'https://images.unsplash.com/photo-1436491865339-d07a10a9a5a9?w=800&q=80'},
+  {id:'hongqiao',day:5,name:'上海虹桥 T2',lat:31.196029,lng:121.339775,time:'18:00 落地',desc:'行程圆满结束',type:'stay',icon:'🏠',img:'https://images.unsplash.com/photo-1539037116277-4db208946f6d?w=800&q=80'}
+];
+const ROUTES=[
+  {day:0,from:'jintie',to:'pudong',type:'drive',road:'内环 → S20'},
+  {day:0,from:'pudong',to:'hle_arr',type:'flight',dist:'2200km',time:'3h40m',road:'吉祥 HO1135'},
+  {day:1,from:'hailar',to:'moergele',road:'S201'},
+  {day:1,from:'moergele',to:'shidi',road:'国道'},
+  {day:1,from:'shidi',to:'eerge',road:'县道'},
+  {day:2,from:'eerge2',to:'birch',road:'S201'},
+  {day:2,from:'birch',to:'enhe',road:'乡道'},
+  {day:2,from:'enhe',to:'ka7',road:'X904',brief:true},
+  {day:2,from:'ka7',to:'ka5',road:'卡线',roadNote:{label:'卡线 · 七卡→五卡',time:'14:30 — 16:00',desc:'仅走卡线这一段 · 沿额尔古纳河边防公路'},isKaxian:true},
+  {day:2,from:'ka5',to:'wulan',road:'X904',brief:true},
+  {day:2,from:'wulan',to:'hst',road:'X904'},
+  {day:3,from:'hst2',to:'herder',road:'镇区'},
+  {day:3,from:'herder',to:'rainbow',road:'边防公路'},
+  {day:3,from:'rainbow',to:'manzhouli',road:'省道+高速'},
+  {day:4,from:'mzl2',to:'hulun',road:'沿湖'},
+  {day:4,from:'hulun',to:'hailar2',road:'G301'},
+  {day:5,from:'hle_dep',to:'hongqiao',type:'flight',dist:'2200km',time:'3h35m',road:'吉祥航空'}
+];
+const DAY_INFO={
+  0:{title:'D0 · 7/30 周四',route:'上海 → 海拉尔',subtitle:'近铁 → 浦东 → 海拉尔',color:'#bf5af2'},
+  1:{title:'D1 · 7/31 周五',route:'海拉尔 → 额尔古纳',subtitle:'莫尔格勒河 → 国家湿地公园 → 额尔古纳',color:'#0a84ff'},
+  2:{title:'D2 · 8/1 周六',route:'额尔古纳 → 黑山头',subtitle:'白桦林 → 恩和 → 卡线(七-五卡) → 乌兰山',color:'#30d158'},
+  3:{title:'D3 · 8/2 周日',route:'黑山头 → 满洲里',subtitle:'访牧户 → 186彩带河 → 满洲里',color:'#ff9f0a'},
+  4:{title:'D4 · 8/3 周一',route:'满洲里 → 海拉尔',subtitle:'上午满洲里 · 金海岸 → 海拉尔',color:'#ff453a'},
+  5:{title:'D5 · 8/4 周二',route:'海拉尔 → 上海',subtitle:'14:25 — 18:00 · 海拉尔 → 虹桥',color:'#bf5af2'}
+};
+const CTX_LABELS=[
+  {text:'俄罗斯',lat:51.5,lng:119,size:14,color:'rgba(142,142,147,.5)',sp:4},
+  {text:'蒙古国',lat:47.8,lng:116.5,size:12,color:'rgba(142,142,147,.35)',sp:3},
+  {text:'呼伦贝尔',lat:48.8,lng:121.2,size:11,color:'rgba(142,142,147,.4)',sp:1}
+];
+
+function amapXY(p){return`${p.lng},${p.lat}`}
+function heroPlaceholder(p){
+  const c=DC[p.day]||'#007aff';
+  return `linear-gradient(135deg, color-mix(in srgb, ${c} 22%, transparent), color-mix(in srgb, ${c} 6%, transparent)), linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.22))`;
+}
+POIS.forEach(p=>{
+  p._g=[p.lat,p.lng];
+  const imgId=IMG_ALIAS[p.id]||p.id;
+  p.img=`${IMG_BASE}${imgId}.jpg`;
+});
+const IS_TOUCH=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
+
+const AMAP_KEY='946e767d5b02b1fae1e8686a4cb8722a';
+const map=L.map('map',{zoomControl:false}).setView([49.8,119.2],7);
+L.control.zoom({position:'topright'}).addTo(map);
+// 深色底图更协调
+L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=7&x={x}&y={y}&z={z}',{attribution:'© 高德',maxZoom:18,subdomains:'1234'}).addTo(map);
+const dayLayers={0:[],1:[],2:[],3:[],4:[],5:[]};
+const markerMap={};const routeSegMap={};const routeExtras={};
+let curDay='all',activePoi=null;
+const MARKER_ALIAS={mzl2:'manzhouli',hailar2:'hailar',eerge2:'eerge',hst2:'hst'};
+
+function buildDaySeg(){
+  const w=document.getElementById('daySeg');
+  w.innerHTML=DAY_META.map(m=>`<div class="seg" data-day="${m.d}" style="--c:${m.c}"><div class="d">${m.label}</div><div class="t">${m.sub}</div></div>`).join('');
+  w.querySelectorAll('.seg').forEach(el=>{
+    el.addEventListener('click',()=>sel(el.dataset.day));
+  });
+}
+
+function parseTimeRangeToMin(s){
+  if(!s)return 0;
+  const m=String(s).match(/(\d{1,2}):(\d{2})\s*[—-]\s*(\d{1,2}):(\d{2})/);
+  if(!m)return 0;
+  const a=(+m[1])*60+(+m[2]),b=(+m[3])*60+(+m[4]);
+  return b>a?b-a:0;
+}
+function fmtHM(min){
+  const h=Math.floor(min/60),mm=min%60;
+  return h?`${h}h${mm?mm+'m':''}`:`${mm}m`;
+}
+function recomputeDayStats(){
+  const out={};
+  for(let d=0;d<=5;d++){
+    const drives=ROUTES.filter(r=>r.day===d && r.type!=='flight');
+    const driveDist=drives.reduce((sum,r)=>sum+(r.fallback?0:(r.realDist||0)),0);
+    const driveDur=drives.reduce((sum,r)=>sum+(r.fallback?0:(r.realDur||0)),0);
+    const playMin=POIS.filter(p=>p.day===d && !['start','transit'].includes(p.type))
+      .reduce((sum,p)=>sum+parseTimeRangeToMin(p.time),0);
+    out[d]={driveKm:driveDist?Math.round(driveDist/1000):0,driveDurMin:driveDur?Math.round(driveDur/60):0,playMin};
+  }
+  const all=Object.values(out).reduce((acc,v)=>({
+    driveKm:acc.driveKm+v.driveKm,
+    driveDurMin:acc.driveDurMin+v.driveDurMin,
+    playMin:acc.playMin+v.playMin
+  }),{driveKm:0,driveDurMin:0,playMin:0});
+  out.all=all;
+  DAY_STATS=out;
+}
+function dayStatText(d){
+  if(!Object.keys(DAY_STATS||{}).length)recomputeDayStats();
+  const s=DAY_STATS?.[d]||{driveKm:0,driveDurMin:0,playMin:0};
+  const drive=s.driveKm?`🚗 ${s.driveKm}km`:'🚗 —';
+  const dur=s.driveDurMin?`· 车程 ${fmtHM(s.driveDurMin)}`:'· 车程 —';
+  const play=s.playMin?`· 游玩 ${fmtHM(s.playMin)}`:'· 游玩 —';
+  return `${drive} ${dur} ${play}`;
+}
+function popupHtml(poi){
+  const tags=poi.tags?`<div class="pp-tags">${poi.tags.map(t=>`<span>${t}</span>`).join('')}</div>`:'';
+  const hero=`<div class="pp-hero" style="background:${heroPlaceholder(poi)}"><img class="poi-img" src="${poi.img}" alt="${poi.name}" onerror="this.style.display='none'"/><div class="pp-hero-cap"><h3>${poi.name}</h3><div class="day-tag">第 ${poi.day} 天</div></div></div>`;
+  return`${hero}<div class="pp-body"><p class="pp-desc">${poi.desc}</p>${tags}${poi.time?`<div class="pp-meta">时间 <strong>${poi.time}</strong></div>`:''}</div>`;
+}
+function stopCard(poi,i,c,last){
+  const tags=poi.tags?`<div class="stop-tags">${poi.tags.map(t=>`<span>${t}</span>`).join('')}</div>`:'';
+  const thumb=`<div class="stop-thumb" style="background:${heroPlaceholder(poi)}"><img class="poi-img" src="${poi.img}" alt="${poi.name}" onerror="this.style.display='none'"/></div>`;
+  return`<div class="stop" style="--c:${c};--i:${i}" data-poi="${poi.id}">
+    <div class="stop-rail"><div class="stop-dot ${poi.type==='start'?'start':''}"></div>${!last?'<div class="stop-line"></div>':''}</div>
+    <div class="stop-card">${thumb}
+    <div class="stop-body"><div class="stop-name">${poi.name}</div><div class="stop-time">${poi.time||''}</div><div class="stop-desc">${poi.desc}</div>${tags}</div></div></div>`;
+}
+
+function flightArc(start,end,n=80){
+  const pts=[],dy=end[0]-start[0],dx=end[1]-start[1],dist=Math.sqrt(dx*dx+dy*dy),h=dist*.2;
+  const px=dy/dist,py=-dx/dist;
+  for(let i=0;i<=n;i++){const t=i/n,arc=4*h*t*(1-t);pts.push([start[0]+dy*t+arc*px,start[1]+dx*t+arc*py])}
+  return pts;
+}
+async function loadBorders(){
+  try{
+    const[cR,mR]=await Promise.all([fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000.json'),fetch('https://geo.datav.aliyun.com/areas_v3/bound/150000.json')]);
+    const[cG,mG]=await Promise.all([cR.json(),mR.json()]);
+    L.geoJSON(cG,{style:{color:'#ff9f0a',weight:2,opacity:.45,fillOpacity:0}}).addTo(map);
+    L.geoJSON(mG,{style:{color:'#0a84ff',weight:1,opacity:.25,fillColor:'#0a84ff',fillOpacity:.04,dashArray:'6 4'}}).addTo(map);
+  }catch(e){}
+}
+function addLabels(){CTX_LABELS.forEach(l=>{L.marker([l.lat,l.lng],{icon:L.divIcon({className:'',html:`<div class="map-lb" style="font-size:${l.size}px;letter-spacing:${l.sp}px">${l.text}</div>`,iconSize:[0,0]}),interactive:false}).addTo(map)})}
+
+function pathFromAmap(path){
+  const pts=[];path.steps?.forEach(s=>{s.polyline.split(';').forEach(p=>{const[x,y]=p.split(',').map(Number);if(!isNaN(y))pts.push([y,x])})});
+  return pts.length>2?pts:null;
+}
+function fmtDur(sec){const m=Math.round(sec/60);return m>=60?`${Math.floor(m/60)}h${m%60?m%60+'m':''}`:`${m}min`}
+function fmtDist(m){return m>=1000?`${(m/1000).toFixed(m>=10000?0:1)} km`:`${m} m`}
+function mergePts(a,b){if(!a?.length)return b||[];if(!b?.length)return a;return a.at(-1)[0]===b[0][0]&&a.at(-1)[1]===b[0][1]?a.concat(b.slice(1)):a.concat(b)}
+const ROUTE_CACHE_VER='v5';
+function routeCacheKey(o,d,w){return`hb_${ROUTE_CACHE_VER}_${o}_${d}_${w||''}`}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+async function amapDriveOnce(orig,dest,wp,n=0){
+  const ck=routeCacheKey(orig,dest,wp);
+  try{const c=sessionStorage.getItem(ck);if(c){const j=JSON.parse(c);if(j.pts?.length>2)return j}}catch(e){}
+  let url=`https://restapi.amap.com/v3/direction/driving?key=${AMAP_KEY}&origin=${orig}&destination=${dest}&strategy=0&extensions=all&output=json`;
+  if(wp)url+=`&waypoints=${wp}`;
+  const d=await(await fetch(url)).json();
+  if(/QPS|EXCEEDED/i.test(d.info||'')&&n<4){await sleep(600+n*500);return amapDriveOnce(orig,dest,wp,n+1)}
+  if(d.status!=='1'||!d.route?.paths?.[0])return null;
+  const path=d.route.paths[0],pts=pathFromAmap(path);
+  if(!pts)return null;
+  const roads=[...new Set(path.steps?.map(s=>s.road).filter(Boolean))].slice(0,2);
+  const out={pts,dist:+path.distance,dur:+path.duration,road:roads.join(' · ')||''};
+  try{sessionStorage.setItem(ck,JSON.stringify(out))}catch(e){}
+  return out;
+}
+async function amapDriveRoute(a,b,rt){
+  const o=amapXY(a),d=amapXY(b);
+  let r=await amapDriveOnce(o,d);
+  if(r)return r;
+  const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};
+  const r1=await amapDriveOnce(o,`${mid.lng},${mid.lat}`);await sleep(350);
+  const r2=await amapDriveOnce(`${mid.lng},${mid.lat}`,d);
+  if(r1&&r2)return{pts:mergePts(r1.pts,r2.pts),dist:r1.dist+r2.dist,dur:r1.dur+r2.dur,road:r1.road};
+  return null;
+}
+async function loadRoutes(){
+  const drives=ROUTES.filter(r=>r.type!=='flight'),flights=ROUTES.filter(r=>r.type==='flight');
+  const total=drives.length+flights.length;let done=0,ok=0,fail=0;
+  const fill=document.getElementById('pFill'),lb=document.getElementById('pLb');
+  const upd=()=>{fill.style.width=Math.round(done/total*100)+'%';lb.textContent=`路线规划 ${done} / ${total}`};
+  for(const rt of drives){
+    const a=POIS.find(p=>p.id===rt.from),b=POIS.find(p=>p.id===rt.to);
+    if(a&&b){
+      const r=await amapDriveRoute(a,b,rt);
+      if(r){
+        ok++;
+        rt.real=r.pts;
+        rt.realDist=r.dist;
+        rt.realDur=r.dur;
+        rt.dist=fmtDist(r.dist);
+        rt.time=fmtDur(r.dur);
+        if(r.road&&!rt.roadNote)rt.road=r.road;
+      }
+      else{fail++;rt.fallback=true;rt.real=[[a.lat,a.lng],[b.lat,b.lng]];rt.dist=`~${Math.round(map.distance(a._g,b._g)/1000)} km`}
+    }
+    done++;upd();await sleep(380);
+  }
+  flights.forEach(rt=>{const s=POIS.find(p=>p.id===rt.from),e=POIS.find(p=>p.id===rt.to);if(s&&e)rt.real=flightArc(s._g,e._g);done++;upd()});
+  drawRoutes();
+  // 动态汇总：自驾/车程以高德驾车规划为准（失败段不计入）
+  const driveDist=drives.reduce((sum,r)=>sum+(r.fallback?0:(r.realDist||0)),0);
+  const driveDur=drives.reduce((sum,r)=>sum+(r.fallback?0:(r.realDur||0)),0);
+  SUMMARY.driveKm=Math.round(driveDist/1000);
+  SUMMARY.driveDur=driveDur;
+  recomputeDayStats();
+  // 飞行里程：页面展示的 2200km × 2（去+回）作为近似
+  const flyKm=2200*2;
+  const fmtH=(sec)=>{
+    const m=Math.round(sec/60);
+    const h=Math.floor(m/60),mm=m%60;
+    return h?`${h}<small>h</small>${mm?` ${mm}<small>m</small>`:''}`:`${mm}<small>m</small>`;
+  };
+  const mDrive=document.getElementById('mDrive'),mDriveT=document.getElementById('mDriveT'),mFly=document.getElementById('mFly');
+  if(mDrive)mDrive.innerHTML=driveDist?`${Math.round(driveDist/1000)}<small>km</small>`:'—';
+  if(mDriveT)mDriveT.innerHTML=driveDur?fmtH(driveDur):'—';
+  if(mFly)mFly.innerHTML=`${flyKm}<small>km</small>`;
+  // 路线规划完成后，刷新「全程总览」卡片里的动态汇总字段
+  renderTL(curDay);
+  lb.textContent=fail?`完成 · ${ok} 段驾车 · ${fail} 段需刷新`:`路线已就绪 · ${ok} 段`;
+  document.getElementById('prog').style.opacity='0';
+  setTimeout(()=>document.getElementById('prog')?.remove(),2200);
+}
+
+function hexToRgb(h){
+  const s=(h||'').replace('#','').trim();
+  if(s.length===3){
+    const r=int(s[0]*2),g=int(s[1]*2),b=int(s[2]*2);
+    return {r,g,b};
+  }
+  if(s.length>=6){
+    return {r:int(s.slice(0,2)),g:int(s.slice(2,4)),b:int(s.slice(4,6))};
+  }
+  return {r:255,g:255,b:255};
+  function int(x){return parseInt(x,16)||0}
+}
+function rgbToHex({r,g,b}){
+  const h=n=>Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,'0');
+  return `#${h(r)}${h(g)}${h(b)}`;
+}
+function mixHex(a,b,t){
+  const A=hexToRgb(a),B=hexToRgb(b);
+  return rgbToHex({r:A.r+(B.r-A.r)*t,g:A.g+(B.g-A.g)*t,b:A.b+(B.b-A.b)*t});
+}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function gradientSegments(pts,base,fb){
+  // Leaflet polyline 不支持单线渐变：切成多段 polyline 保持性能
+  if(!pts?.length||pts.length<2)return [];
+  if(fb)return [L.polyline(pts,{color:base,weight:3.6,opacity:.38,dashArray:'10 8',lineCap:'round',lineJoin:'round'})];
+  const n=clamp(Math.floor(pts.length/14),8,18);
+  const c0=mixHex(base,'#0b0b0c',.18),c1=mixHex(base,'#ffffff',.10);
+  const out=[];
+  const step=(pts.length-1)/n;
+  for(let i=0;i<n;i++){
+    const a=Math.floor(i*step),b=Math.max(a+1,Math.floor((i+1)*step));
+    const seg=pts.slice(a,b+1);
+    if(seg.length<2)continue;
+    const t=i/Math.max(1,n-1);
+    out.push(L.polyline(seg,{color:mixHex(c0,c1,t),weight:3.6,opacity:.92,lineCap:'round',lineJoin:'round'}));
+  }
+  return out.length?out:[L.polyline(pts,{color:base,weight:3.6,opacity:.92,lineCap:'round',lineJoin:'round'})];
+}
+
+function drawRoutes(){
+  Object.keys(routeSegMap).forEach(k=>delete routeSegMap[k]);
+  Object.keys(routeExtras).forEach(k=>delete routeExtras[k]);
+  ROUTES.forEach(rt=>{
+    const fly=rt.type==='flight',a=POIS.find(p=>p.id===rt.from),b=POIS.find(p=>p.id===rt.to);
+    const pts=rt.real||(a&&b?[[a.lat,a.lng],[b.lat,b.lng]]:[]);
+    if(!pts.length)return;
+    const c=DC[rt.day],key=rt.from+'→'+rt.to;
+    const extras=[];
+    if(fly){
+      const ln=L.polyline(pts,{color:c,weight:2.5,opacity:.78,dashArray:'10 7',lineCap:'round',className:'fly-line'});
+      ln._r='m';ln._day=rt.day;ln.bindTooltip(`<b>✈ ${rt.dist}</b> · ${rt.time}`,{className:'rt-tip',sticky:true});
+      ln.on('click',()=>hlRoute(key));ln.addTo(map);dayLayers[rt.day].push(ln);
+      routeSegMap[key]=ln;
+      const mid=pts[Math.floor(pts.length/2)];
+      const pm=L.marker(mid,{icon:L.divIcon({className:'',html:'<div style="font-size:22px">✈️</div>',iconSize:[24,24],iconAnchor:[12,12]}),interactive:false});
+      pm.addTo(map);dayLayers[rt.day].push(pm);extras.push(pm);
+    }else{
+      const base=rt.isKaxian?'#30d158':c,fb=rt.fallback;
+      const glow=L.polyline(pts,{color:base,weight:9,opacity:.12,lineCap:'round',interactive:false});
+      glow.addTo(map);dayLayers[rt.day].push(glow);extras.push(glow);
+      const mains=gradientSegments(pts,base,fb);
+      mains.forEach(ln=>{
+        ln._r='m';ln._day=rt.day;ln._kx=rt.isKaxian?1:0;
+        const tip=rt.roadNote?`<br>🛣 ${rt.roadNote.label}`:'';
+        ln.bindTooltip(`<b>${rt.dist||''}</b> ${rt.time?`· ${rt.time}`:''}${tip}`,{className:'rt-tip',sticky:true});
+        ln.on('click',()=>hlRoute(key));
+        ln.addTo(map);dayLayers[rt.day].push(ln);
+      });
+      // routeSegMap 存数组：用于高亮时批量 setStyle/bringToFront
+      routeSegMap[key]=mains;
+      const stroke=L.polyline(pts,{color:'rgba(255,255,255,.28)',weight:1.4,opacity:fb?.2:.45,lineCap:'round',interactive:false});
+      stroke.addTo(map);dayLayers[rt.day].push(stroke);extras.push(stroke);
+      // 主线渐变段也放入 extras，方便按天显隐时同步降低可见度
+      extras.push(...mains);
+    }
+    routeExtras[key]=extras;
+  });
+}
+function routeChainKeys(key){
+  const rt=ROUTES.find(r=>r.from+'→'+r.to===key);
+  if(!rt?.isKaxian)return[key];
+  return['enhe→ka7','ka7→ka5','ka5→wulan'].filter(k=>routeSegMap[k]);
+}
+function applyRouteOpacity(){
+  Object.entries(routeSegMap).forEach(([k,val])=>{
+    const rt=ROUTES.find(r=>r.from+'→'+r.to===k);
+    const on=curDay==='all'||curDay===rt?.day;
+    const segs=Array.isArray(val)?val:[val];
+    const hi=!!segs.find(s=>s?._hl);
+    segs.forEach(ln=>{
+      if(!ln?.setStyle)return;
+      ln.setStyle({opacity:on?(ln._hl?1:.92):.08,weight:on?(ln._hl?5:3.6):1.5,dashArray:rt?.fallback?'10 8':null});
+    });
+    (routeExtras[k]||[]).forEach(ex=>{
+      if(ex instanceof L.Marker){if(ex.getElement())ex.getElement().style.opacity=on?'1':'.1'}
+      else ex.setStyle?.({opacity:on?.45:.03});
+    });
+  });
+}
+function hlRoute(key){
+  const keys=routeChainKeys(key);
+  Object.keys(routeSegMap).forEach(k=>{
+    const val=routeSegMap[k];
+    const segs=Array.isArray(val)?val:[val];
+    segs.forEach(ln=>{if(ln)ln._hl=keys.includes(k)});
+  });
+  applyRouteOpacity();
+  keys.forEach(k=>{
+    const val=routeSegMap[k];
+    const segs=Array.isArray(val)?val:[val];
+    segs.forEach(ln=>ln?.bringToFront?.());
+  });
+  document.querySelectorAll('.leg-row').forEach(e=>e.classList.toggle('on',keys.includes(e.dataset.seg)));
+}
+
+function mapLabel(poi){
+  return poi.name.replace(/\(住\)/,'').replace(/旅游景点/,'').replace(/额尔古纳国家湿地公园/,'额尔古纳湿地').replace(/额尔古纳河乌兰山/,'乌兰山').replace(/恩和俄罗斯民族乡/,'恩和');
+}
+function poiIcon(poi,c){
+  const pin=poi.type==='start'?26:22;
+  return L.divIcon({
+    className:'poi-mk-icon',
+    html:`<div class="mk-pin ${poi.type==='start'?'lg':''}" data-poi="${poi.id}" style="background:${c}">${poi.icon}</div>`,
+    iconSize:[pin,pin],iconAnchor:[pin/2,pin]
+  });
+}
+function setMarkerVis(mk,vis){
+  const el=mk.getElement();if(el)el.style.opacity=vis?'1':'.12';
+  const tel=mk.getTooltip()?.getElement();if(tel)tel.style.opacity=vis?'1':'.12';
+}
+function createMarkers(){
+  POIS.filter(p=>!p.noMarker).forEach(poi=>{
+    const c=DC[poi.day],lb=mapLabel(poi);
+    const mk=L.marker(poi._g,{icon:poiIcon(poi,c),zIndexOffset:poi.type==='stay'?400:300});
+    mk.bindTooltip(lb,{permanent:true,direction:'right',offset:[6,-10],className:'mk-name-tip',opacity:1,interactive:false});
+    mk.bindPopup(popupHtml(poi),{maxWidth:320,minWidth:320,closeButton:true,autoPanPadding:[50,50]});
+    mk.on('click',()=>focus(poi.id,{map:true}));
+    if(!IS_TOUCH){mk.on('mouseover',()=>setHlPoi(poi.id));mk.on('mouseout',()=>{if(activePoi!==poi.id)setHlPoi(null)})}
+    mk._poiId=poi.id;mk.addTo(map);dayLayers[poi.day].push(mk);markerMap[poi.id]=mk;
+  });
+}
+function setHlPoi(id){
+  activePoi=id;
+  document.querySelectorAll('.mk-pin[data-poi]').forEach(el=>{
+    const on=id&&el.dataset.poi===id;
+    el.closest('.leaflet-marker-icon')?.classList.toggle('mk-hl-marker',on);
+  });
+  document.querySelectorAll('.stop').forEach(el=>el.classList.toggle('hl',id&&el.dataset.poi===id));
+}
+function fitDayBounds(day){
+  const ps=day==='all'?POIS.filter(p=>p.day>=1&&p.day<=4):POIS.filter(p=>p.day===day&&!p.noMarker);
+  if(!ps.length)return;
+  map.fitBounds(L.latLngBounds(ps.map(p=>p._g)),{padding:[48,48],maxZoom:day==='all'?7:day===0||day===5?5:11,animate:true});
+}
+function routesBetween(a,b,rs){
+  const legs=[];let cur=a,n=0;
+  while(cur!==b&&n++<8){const r=rs.find(x=>x.from===cur);if(!r)break;legs.push(r);cur=r.to}
+  return legs;
+}
+function renderTL(day){
+  const el=document.getElementById('timeline');
+  if(day==='all'){
+    const fmtH=(sec)=>{const m=Math.round(sec/60),h=Math.floor(m/60),mm=m%60;return h?`${h}h${mm?mm+'m':''}`:`${mm}m`};
+    let h=`<div class="day-head"><h2>全程总览</h2><p>路线 D0–D5<br>(${dayStatText('all')})</p></div>`;
+    for(let d=0;d<=5;d++){const i=DAY_INFO[d];
+      h+=`<div class="overview-card" onclick="sel(${d})"><div class="oc-row"><span class="oc-dot" style="background:${i.color}"></span><div><div class="oc-title">${i.title}</div><div class="oc-sub">${i.route}<br>${i.subtitle}</div></div></div></div>`}
+    el.innerHTML=h;return;
+  }
+  const info=DAY_INFO[day],
+        // 起点/终点即使 noMarker 也要出现在行程里，否则会少展示（看起来像少算一段路）
+        ps=POIS.filter(p=>p.day===day&&(!p.noMarker||p.type==='start'||p.type==='stay'||p.type==='transit')),
+        rs=ROUTES.filter(r=>r.day===day),
+        c=info.color;
+  let h=`<div class="day-head"><h2>${info.title}</h2><p>${info.subtitle}<br>(${dayStatText(day)})</p></div>`;
+  const legHtml=s=>{const k=s.from+'→'+s.to,ico=s.type==='flight'?'✈':s.fallback?'!':'🚗';
+    const lbl=[s.dist,s.time,s.road].filter(Boolean).join(' · ')||'规划中';
+    return`<div class="leg-row" data-seg="${k}" onclick="event.stopPropagation();hlRoute('${k}')"><div class="bar"></div><span class="leg-pill">${ico} ${lbl}</span></div>`};
+  ps.forEach((poi,i)=>{
+    if(i>0)routesBetween(ps[i-1].id,poi.id,rs).filter(l=>!l.brief).forEach(l=>h+=legHtml(l));
+    h+=stopCard(poi,i,c,i===ps.length-1);
+  });
+  el.innerHTML=h;
+  el.querySelectorAll('.stop').forEach(node=>{
+    node.addEventListener('click',()=>focus(node.dataset.poi));
+    if(!IS_TOUCH){node.addEventListener('mouseenter',()=>setHlPoi(node.dataset.poi));node.addEventListener('mouseleave',()=>setHlPoi(null))}
+  });
+}
+function normDay(d){return d==='all'?'all':(typeof d==='number'?d:parseInt(d,10))}
+function sel(day){
+  day=normDay(day);
+  curDay=day;setHlPoi(null);
+  document.querySelectorAll('.seg').forEach(s=>s.classList.toggle('on',s.dataset.day===String(day)));
+  document.querySelectorAll('.lg-i[data-day]').forEach(e=>e.classList.toggle('on',e.dataset.day===String(day)));
+  for(let d=0;d<=5;d++){
+    (dayLayers[d]||[]).forEach(ly=>{
+      if(!(ly instanceof L.Marker))return;
+      const vis=day==='all'||day===d;
+      if(ly._poiId)setMarkerVis(ly,vis);
+      else{const el=ly.getElement();if(el)el.style.opacity=vis?'1':'.12'}
+    });
+  }
+  Object.keys(routeSegMap).forEach(k=>{if(routeSegMap[k])routeSegMap[k]._hl=false});
+  applyRouteOpacity();
+  fitDayBounds(day);renderTL(day);
+  if(window.innerWidth<=900){day==='all'?document.getElementById('panel').classList.remove('open'):document.getElementById('panel').classList.add('open')}
+}
+function focus(id,opt={}){
+  const mid=markerMap[id]?id:(MARKER_ALIAS[id]||id);
+  const m=markerMap[mid];if(!m)return;
+  setHlPoi(id);
+  map.flyTo(m.getLatLng(),Math.max(map.getZoom(),10),{animate:true,duration:.5});
+  m.openPopup();
+  document.querySelectorAll('.stop').forEach(e=>e.classList.toggle('on',e.dataset.poi===id));
+  document.querySelector(`.stop[data-poi="${id}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+  if(!opt.map&&window.innerWidth<=900)document.getElementById('panel').classList.add('open');
+}
+// legend removed（顶部 Day Tabs 已足够）
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.key>='0'&&e.key<='5'){e.preventDefault();sel(+e.key)}
+  else if(e.key==='Escape'){e.preventDefault();sel('all')}
+});
+setTimeout(()=>document.getElementById('kbdH')?.classList.add('show'),1200);
+setTimeout(()=>document.getElementById('kbdH')?.classList.remove('show'),4500);
+document.getElementById('sbToggle')?.addEventListener('click',()=>{
+  const p=document.getElementById('panel');p.classList.toggle('open');
+  document.getElementById('sbToggle').textContent=p.classList.contains('open')?'✕':'☰';
+});
+document.getElementById('fitBtn')?.addEventListener('click',()=>fitDayBounds(curDay));
+map.on('click',()=>{
+  setHlPoi(null);
+  document.querySelectorAll('.leg-row').forEach(e=>e.classList.remove('on'));
+  Object.keys(routeSegMap).forEach(k=>{if(routeSegMap[k])routeSegMap[k]._hl=false});
+  applyRouteOpacity();
+});
+
+buildDaySeg();
+(async()=>{addLabels();createMarkers();sel('all');loadBorders();await loadRoutes();setTimeout(()=>map.invalidateSize(),300)})();
+</script>
+</body>
+</html>
