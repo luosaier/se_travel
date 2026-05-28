@@ -239,13 +239,16 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
     --peek-h: 140px;
     transform:translateY(calc(100% - var(--peek-h)));transition:transform .35s var(--ease);
     box-shadow:var(--shadow-lg);
+    padding-bottom:env(safe-area-inset-bottom);
   }
   #panel.open{transform:translateY(0)}
   /* close button: top-right of sheet */
   #sbToggle{
+    position:absolute; /* 跟随浮层，而不是跟随屏幕 */
     left:auto;right:12px;
-    top:max(10px,env(safe-area-inset-top));
+    top:10px;
   }
+  .panel-scroll{padding-bottom:max(18px,env(safe-area-inset-bottom))}
   /* keep header+tabs visible in peek state */
   .panel-top{padding-right:56px}
   .day-picker{padding-bottom:10px}
@@ -259,11 +262,10 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
 </style>
 </head>
 <body>
-
-<button type="button" class="btn-icon glass" id="sbToggle" aria-label="行程">☰</button>
 <button type="button" class="btn-fit glass" id="fitBtn">适配视野</button>
 
 <aside id="panel">
+  <button type="button" class="btn-icon glass" id="sbToggle" aria-label="行程">☰</button>
   <div class="panel-top">
     <div class="eyebrow">Inner Mongolia · 2025</div>
     <h1>呼伦贝尔</h1>
