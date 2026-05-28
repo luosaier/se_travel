@@ -254,6 +254,11 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
   .day-picker{padding-bottom:10px}
   /* legend removed */
   .prog{bottom:10px}
+  /* fit view button: top-left for mobile */
+  #fitBtn{
+    left:12px;top:max(12px,env(safe-area-inset-top));
+    bottom:auto;
+  }
   /* popups: fit phone width */
   .leaflet-popup-content-wrapper{width:min(320px,calc(100vw - 36px))!important;min-width:min(320px,calc(100vw - 36px))!important;max-width:min(320px,calc(100vw - 36px))!important}
   .leaflet-popup-content{width:min(320px,calc(100vw - 36px))!important}
