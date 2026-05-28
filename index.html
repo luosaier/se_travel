@@ -233,15 +233,22 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
   /* bottom sheet panel */
   #panel{
     position:fixed;left:0;right:0;bottom:0;top:auto;
-    width:100%;min-width:0;max-height:min(72vh,640px);
+    width:100%;min-width:0;max-height:50vh;
     border-right:none;border-top:1px solid var(--border);
     border-radius:18px 18px 0 0;
-    transform:translateY(105%);transition:transform .35s var(--ease);
+    --peek-h: 140px;
+    transform:translateY(calc(100% - var(--peek-h)));transition:transform .35s var(--ease);
     box-shadow:var(--shadow-lg);
   }
   #panel.open{transform:translateY(0)}
-  /* thumb-safe close button */
-  #sbToggle{left:12px;top:max(12px,env(safe-area-inset-top))}
+  /* close button: top-right of sheet */
+  #sbToggle{
+    left:auto;right:12px;
+    top:max(10px,env(safe-area-inset-top));
+  }
+  /* keep header+tabs visible in peek state */
+  .panel-top{padding-right:56px}
+  .day-picker{padding-bottom:10px}
   /* legend removed */
   .prog{bottom:10px}
   /* popups: fit phone width */
@@ -793,7 +800,7 @@ setTimeout(()=>document.getElementById('kbdH')?.classList.add('show'),1200);
 setTimeout(()=>document.getElementById('kbdH')?.classList.remove('show'),4500);
 document.getElementById('sbToggle')?.addEventListener('click',()=>{
   const p=document.getElementById('panel');p.classList.toggle('open');
-  document.getElementById('sbToggle').textContent=p.classList.contains('open')?'✕':'☰';
+  document.getElementById('sbToggle').textContent=p.classList.contains('open')?'✕':'⌃';
 });
 document.getElementById('fitBtn')?.addEventListener('click',()=>fitDayBounds(curDay));
 map.on('click',()=>{
