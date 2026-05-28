@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>呼伦贝尔行程海报 · 7/30–8/4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sf:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+      --serif:'Literata',Georgia,serif;
+      --bg:#050507;
+      --surface:rgba(28,28,30,.82);
+      --surface2:rgba(28,28,30,.58);
+      --border:rgba(255,255,255,.10);
+      --border2:rgba(255,255,255,.14);
+      --label:#f5f5f7;--label2:#e5e5ea;--label3:#8e8e93;--label4:#636366;
+      --r-sm:10px;--r-md:14px;--r-lg:18px;--r-xl:24px;
+      --shadow:0 14px 40px rgba(0,0,0,.35);
+      --blur:saturate(160%) blur(18px);
+      --d0:#bf5af2;--d1:#0a84ff;--d2:#30d158;--d3:#ff9f0a;--d4:#ff453a;--d5:#bf5af2;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sf);
+      color:var(--label);
+      background:
+        radial-gradient(1200px 900px at 18% 8%, rgba(10,132,255,.14), transparent 55%),
+        radial-gradient(900px 700px at 80% 22%, rgba(48,209,88,.12), transparent 55%),
+        radial-gradient(900px 700px at 70% 85%, rgba(255,69,58,.10), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.55)),
+        var(--bg);
+    }
+    .page{
+      max-width:980px;
+      margin:0 auto;
+      padding:28px 18px 34px;
+    }
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      border-radius:var(--r-xl);
+      backdrop-filter:var(--blur);
+      -webkit-backdrop-filter:var(--blur);
+      overflow:hidden;
+    }
+    .hero{
+      padding:24px 22px 18px;
+      position:relative;
+      background:
+        radial-gradient(800px 420px at 30% -10%, rgba(255,255,255,.10), transparent 55%),
+        linear-gradient(135deg, rgba(191,90,242,.18), rgba(10,132,255,.12) 40%, rgba(48,209,88,.10));
+      border-bottom:1px solid var(--border);
+    }
+    .eyebrow{
+      font-size:11px;font-weight:650;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.72);
+    }
+    h1{
+      margin:8px 0 6px;
+      font-family:var(--serif);
+      font-size:34px;
+      letter-spacing:-.04em;
+      line-height:1.05;
+    }
+    .meta{
+      display:flex;flex-wrap:wrap;gap:8px 10px;
+      font-size:13px;color:rgba(229,229,234,.88);
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:7px 10px;border-radius:999px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      white-space:nowrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:14px;
+      padding:16px;
+    }
+    .panel{
+      background:var(--surface2);
+      border:1px solid var(--border);
+      border-radius:var(--r-lg);
+      padding:14px;
+    }
+    .metrics{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+    }
+    .metric{
+      padding:12px 10px;border-radius:14px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      text-align:center;
+    }
+    .metric .v{font-size:18px;font-weight:780;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+    .metric .l{margin-top:6px;font-size:10px;color:rgba(142,142,147,.95);letter-spacing:.08em}
+    .flights{
+      display:grid;grid-template-columns:1fr;gap:10px;
+    }
+    .flight{
+      padding:12px 12px;border-radius:14px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .flight .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .flight .lbl{font-size:11px;color:rgba(142,142,147,.95);font-weight:650;letter-spacing:.06em}
+    .flight .time{margin-top:6px;font-size:18px;font-weight:780;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+    .flight .sub{margin-top:6px;font-size:12px;color:rgba(229,229,234,.86)}
+    .price{
+      margin-top:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding-top:12px;border-top:1px solid rgba(255,255,255,.10);
+      color:rgba(229,229,234,.88);font-size:12px;
+    }
+    .price strong{font-size:18px;color:var(--label);letter-spacing:-.02em}
+    .days{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+    .day{
+      border-radius:16px;
+      padding:14px 14px 13px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .day .hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:12px;font-weight:780;letter-spacing:-.02em;
+    }
+    .dot{width:10px;height:10px;border-radius:50%}
+    .stat{font-size:11px;color:rgba(229,229,234,.78);white-space:nowrap}
+    .route{margin-top:10px;font-size:13px;font-weight:700;letter-spacing:-.02em}
+    .stops{margin-top:6px;font-size:12px;color:rgba(142,142,147,.98);line-height:1.45}
+    .note{
+      margin-top:12px;
+      display:flex;gap:10px;align-items:flex-start;
+      padding:12px;border-radius:16px;
+      background:rgba(10,132,255,.10);
+      border:1px solid rgba(10,132,255,.22);
+      color:rgba(229,229,234,.90);
+      font-size:12px;line-height:1.45;
+    }
+    .note b{color:var(--label)}
+    .footer{
+      margin-top:12px;
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      padding:0 4px 6px;
+      color:rgba(142,142,147,.95);
+      font-size:11px;
+    }
+    a{color:inherit}
+    @media (max-width:880px){
+      .grid{grid-template-columns:1fr}
+      .days{grid-template-columns:1fr}
+      h1{font-size:30px}
+      .metrics{grid-template-columns:repeat(2,1fr)}
+    }
+    @media print{
+      body{background:#fff}
+      .card{box-shadow:none}
+      .footer{display:none}
+      @page{margin:12mm}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div class="hero">
+        <div class="eyebrow">Inner Mongolia · 2025</div>
+        <h1>呼伦贝尔 · 6天5晚</h1>
+        <div class="meta">
+          <span class="pill">📅 7/30 — 8/4</span>
+          <span class="pill">🧭 上海 ⇄ 海拉尔</span>
+          <span class="pill">🚗 1265km · 车程 19h59m · 🎒 游玩 15h</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <div class="metrics">
+            <div class="metric"><div class="v">1265km</div><div class="l">自驾</div></div>
+            <div class="metric"><div class="v">19h59m</div><div class="l">车程</div></div>
+            <div class="metric"><div class="v">4400km</div><div class="l">飞行</div></div>
+            <div class="metric"><div class="v">6天5晚</div><div class="l">行程</div></div>
+          </div>
+
+          <div class="days">
+            <div class="day">
+              <div class="hd">
+                <div class="tag"><span class="dot" style="background:var(--d0)"></span>D0 · 7/30</div>
+                <div class="stat">🚗 55km · 1h12m · 🎒 —</div>
+              </div>
+              <div class="route">上海 → 海拉尔</div>
+              <div class="stops">近铁 → 浦东 T2 → 海拉尔机场</div>
+            </div>
+
+            <div class="day">
+              <div class="hd">
+                <div class="tag"><span class="dot" style="background:var(--d1)"></span>D1 · 7/31</div>
+                <div class="stat">🚗 279km · 4h?m · 🎒 5h30m</div>
+              </div>
+              <div class="route">海拉尔 → 额尔古纳</div>
+              <div class="stops">莫尔格勒河 → 额尔古纳湿地 → 额尔古纳（住）</div>
+            </div>
+
+            <div class="day">
+              <div class="hd">
+                <div class="tag"><span class="dot" style="background:var(--d2)"></span>D2 · 8/1</div>
+                <div class="stat">🚗 321km · 6h37m · 🎒 5h30m</div>
+              </div>
+              <div class="route">额尔古纳 → 黑山头</div>
+              <div class="stops">白桦林 → 恩和 → 卡线（七卡→五卡）→ 乌兰山 → 黑山头（住）</div>
+            </div>
+
+            <div class="day">
+              <div class="hd">
+                <div class="tag"><span class="dot" style="background:var(--d3)"></span>D3 · 8/2</div>
+                <div class="stat">🚗 264km · 4h?m · 🎒 2h30m</div>
+              </div>
+              <div class="route">黑山头 → 满洲里</div>
+              <div class="stops">访牧户体验 → 186彩带河 → 满洲里（住）</div>
+            </div>
+
+            <div class="day">
+              <div class="hd">
+                <div class="tag"><span class="dot" style="background:var(--d4)"></span>D4 · 8/3</div>
+                <div class="stat">🚗 401km · 5h8m · 🎒 1h30m</div>
+              </div>
+              <div class="route">满洲里 → 海拉尔</div>
+              <div class="stops">上午满洲里 → 金海岸（呼伦湖）→ 海拉尔（住）</div>
+            </div>
+
+            <div class="day">
+              <div class="hd">
+                <div class="tag"><span class="dot" style="background:var(--d5)"></span>D5 · 8/4</div>
+                <div class="stat">✈️ 14:25 → 18:00</div>
+              </div>
+              <div class="route">海拉尔 → 上海</div>
+              <div class="stops">海拉尔机场 → 上海虹桥 T2</div>
+            </div>
+          </div>
+
+          <div class="note">
+            <div>提示</div>
+            <div>
+              <b>卡线</b> 仅走「七卡→五卡」这一段；里程/车程为高德规划汇总（fallback 段不计入）。<br>
+              海报用于快速对齐，详情以在线地图页为准。
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="flights">
+            <div class="flight">
+              <div class="top">
+                <div>
+                  <div class="lbl">去程 · 7/30 周四</div>
+                  <div class="time">16:35 → 20:15</div>
+                </div>
+                <div class="lbl">✈️</div>
+              </div>
+              <div class="sub">吉祥航空 HO1135 · 约 3h40m</div>
+            </div>
+            <div class="flight">
+              <div class="top">
+                <div>
+                  <div class="lbl">返程 · 8/4 周二</div>
+                  <div class="time">14:25 → 18:00</div>
+                </div>
+                <div class="lbl">🛬</div>
+              </div>
+              <div class="sub">吉祥航空 · 约 3h35m</div>
+            </div>
+          </div>
+          <div class="price">
+            <div>请假：7/31 · 8/3 · 8/4</div>
+            <div><strong>¥3020</strong> /人</div>
+          </div>
+
+          <div class="note" style="margin-top:14px;background:rgba(48,209,88,.10);border-color:rgba(48,209,88,.22)">
+            <div>链接</div>
+            <div>
+              在线地图页：<br>
+              <a href="./index.html" target="_blank" rel="noreferrer">打开行程地图（index.html）</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>文件：poster.html（可直接截图/打印）</div>
+      <div>建议：浏览器缩放 90% 或打印 A4 纵向</div>
+    </div>
+  </div>
+</body>
+</html>
+
