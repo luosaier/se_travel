@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<title>呼伦贝尔 · 6天5晚</title>
+<title>呼伦贝尔 · 4天4晚</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
@@ -272,31 +272,31 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
 <aside id="panel">
   <button type="button" class="btn-icon glass" id="sbToggle" aria-label="行程">☰</button>
   <div class="panel-top">
-    <div class="eyebrow">Inner Mongolia · 2025</div>
+    <div class="eyebrow">Inner Mongolia · 2026</div>
     <h1>呼伦贝尔</h1>
-    <p class="meta">7/30 — 8/4 · 6 天 5 晚 · 上海 ⇄ 海拉尔</p>
+    <p class="meta">7/17 — 7/21 · 4 天 4 晚 · 上海虹桥 ⇄ 海拉尔</p>
   </div>
 
   <div class="panel-scroll">
     <div class="trip-card">
       <div class="trip-route">
-        <span>近铁</span><span class="dot"></span><span>浦东 T2</span><span class="dot"></span><span>海拉尔</span><span class="dot"></span><span>虹桥 T2</span>
+        <span>虹桥 T1</span><span class="dot"></span><span>海拉尔</span><span class="dot"></span><span>虹桥 T2</span>
       </div>
       <div class="trip-grid">
         <div class="trip-leg">
-          <div class="lbl">去程 · 7/30 周四</div>
-          <div class="time">16:35 → 20:15</div>
-          <div class="sub">吉祥 HO1135 · 约 3h40m</div>
+          <div class="lbl">去程 · 7/17 周四</div>
+          <div class="time">07:10 → 10:35</div>
+          <div class="sub">厦航 MF8197 · 约 3h25m</div>
         </div>
         <div class="trip-leg">
-          <div class="lbl">返程 · 8/4 周二</div>
+          <div class="lbl">返程 · 7/21 周一</div>
           <div class="time">14:25 → 18:00</div>
-          <div class="sub">吉祥航空 · 约 3h35m</div>
+          <div class="sub">吉祥 HO2240 · 约 3h35m</div>
         </div>
       </div>
       <div class="trip-foot">
-        <span style="font-size:11px;color:var(--label3)">请假 7/31 · 8/3 · 8/4</span>
-        <span class="trip-price">¥3020<small>/人</small></span>
+        <span style="font-size:11px;color:var(--label3)">请假 7/18 · 7/21</span>
+        <span class="trip-price">¥3520<small>/人</small></span>
       </div>
     </div>
 
@@ -304,7 +304,7 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
       <div class="metric"><div class="v" id="mDrive">—</div><div class="l">自驾</div></div>
       <div class="metric"><div class="v" id="mDriveT">—</div><div class="l">车程</div></div>
       <div class="metric"><div class="v" id="mFly">—</div><div class="l">飞行</div></div>
-      <div class="metric"><div class="v">6<small>天</small>5<small>晚</small></div><div class="l">行程</div></div>
+      <div class="metric"><div class="v">4<small>天</small>4<small>晚</small></div><div class="l">行程</div></div>
     </div>
 
     <div class="day-picker">
@@ -318,7 +318,7 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
 <main id="map-wrap">
   <div id="map"></div>
   <div class="map-chrome">
-    <div class="kbd-h glass" id="kbdH"><kbd>0</kbd>–<kbd>5</kbd> 切换 · <kbd>Esc</kbd> 全览</div>
+    <div class="kbd-h glass" id="kbdH"><kbd>1</kbd>–<kbd>5</kbd> 切换 · <kbd>0</kbd> 全览 · <kbd>Esc</kbd> 全览</div>
     <div id="prog" class="prog glass">
       <div class="prog-inner" id="pLb">正在规划路线…</div>
       <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
@@ -332,68 +332,63 @@ let SUMMARY={driveKm:0,driveDur:0};
 let DAY_STATS={};
 const DAY_META=[
   {d:'all',label:'全程',sub:'总览',c:'var(--label3)'},
-  {d:0,label:'D0',sub:'7/30',c:'var(--d0)'},
-  {d:1,label:'D1',sub:'额尔古纳',c:'var(--d1)'},
-  {d:2,label:'D2',sub:'黑山头',c:'var(--d2)'},
-  {d:3,label:'D3',sub:'满洲里',c:'var(--d3)'},
-  {d:4,label:'D4',sub:'海拉尔',c:'var(--d4)'},
-  {d:5,label:'D5',sub:'返程',c:'var(--d5)'}
+  {d:1,label:'D1',sub:'7/17',c:'var(--d1)'},
+  {d:2,label:'D2',sub:'7/18',c:'var(--d2)'},
+  {d:3,label:'D3',sub:'7/19',c:'var(--d3)'},
+  {d:4,label:'D4',sub:'7/20',c:'var(--d4)'},
+  {d:5,label:'返程',sub:'7/21',c:'var(--d5)'}
 ];
 // 图片：建议把景点图片放到 `assets/poi/` 下，文件名用 poi.id，如 `moergele.jpg`
 // 没有图片时，会用高级渐变占位（不会再出现“图不对应景点”的问题）
 const IMG_BASE='assets/poi/';
-const IMG_ALIAS={eerge2:'eerge',hst2:'hst',mzl2:'manzhouli',hailar2:'hailar',hle_arr:'hailar',hle_dep:'hailar',hongqiao:'hailar'};
+const IMG_ALIAS={eerge2:'eerge',hst2:'hst',mzl2:'manzhouli',hailar2:'hailar',hle_arr:'hailar',hle_dep:'hailar',hongqiao:'hailar',deer:'shidi'};
 const POIS=[
-  {id:'jintie',day:0,name:'近铁城市广场',lat:31.232492,lng:121.381700,time:'14:00 集合',desc:'普陀真北路818号，集合出发前往浦东',type:'start',icon:'🏬'},
-  {id:'pudong',day:0,name:'浦东机场 T2',lat:31.142267,lng:121.808682,time:'16:35 起飞',desc:'吉祥航空 HO1135 · 飞行约 3h40m',type:'transit',icon:'✈️'},
-  {id:'hle_arr',day:0,name:'海拉尔机场',lat:49.209297,lng:119.830312,time:'20:15 落地',desc:'入住海拉尔市区，休整明日出发',type:'stay',icon:'🛬',img:'https://images.unsplash.com/photo-1436491865339-d07a10a9a5a9?w=800&q=80'},
-  {id:'hailar',day:1,name:'海拉尔',lat:49.234715,lng:119.824542,time:'08:30 出发',desc:'行程起点 · 取车出发',type:'start',icon:'🏙️',img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'},
-  {id:'moergele',day:1,name:'莫尔格勒河',lat:49.260317,lng:119.299165,time:'09:30 — 11:30',desc:'天下第一曲水 · 草原河谷航拍',type:'scenic',icon:'🌊',tags:['曲水','航拍','免费'],img:'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'},
-  {id:'shidi',day:1,name:'额尔古纳国家湿地公园',lat:50.360025,lng:120.415101,time:'14:00 — 17:30',desc:'根河湿地 · 木栈道观鸟与落日',type:'scenic',icon:'🌅',tags:['国家湿地','栈道','门票'],img:'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80'},
+  {id:'hle_arr',day:1,name:'海拉尔机场',lat:49.209297,lng:119.830312,time:'10:35 落地',desc:'厦航 MF8197 · 虹桥 T1 07:10 起飞',type:'start',icon:'🛬'},
+  {id:'hailar',day:1,name:'海拉尔',lat:49.234715,lng:119.824542,time:'11:30 出发',desc:'取行李后与包车汇合出发',type:'transit',icon:'🏙️',noMarker:true},
+  {id:'moergele',day:1,name:'莫尔格勒河',lat:49.260317,lng:119.299165,time:'12:00 — 13:30',desc:'天下第一曲水 · 草原河谷航拍',type:'scenic',icon:'🌊',tags:['曲水','航拍','免费']},
+  {id:'deer',day:1,name:'额尔古纳鹿园',lat:50.301200,lng:120.280000,time:'14:00 — 15:30',desc:'驯鹿互动拍照（可选）',type:'experience',icon:'🦌',tags:['鹿园','可选']},
+  {id:'shidi',day:1,name:'额尔古纳国家湿地公园',lat:50.360025,lng:120.415101,time:'16:00 — 19:00',desc:'亚洲第一湿地 · 木栈道观鸟与落日',type:'scenic',icon:'🌅',tags:['国家湿地','栈道','门票']},
   {id:'eerge',day:1,name:'额尔古纳',lat:50.243102,lng:120.180506,time:'19:00 入住',desc:'当晚住额尔古纳市区',type:'stay',icon:'🏨',img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'},
   {id:'eerge2',day:2,name:'额尔古纳',lat:50.243102,lng:120.180506,time:'08:30 出发',desc:'D2 出发 · 向北进入林区',type:'start',icon:'🏙️',noMarker:true,img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'},
   {id:'birch',day:2,name:'白桦林景区',lat:50.538147,lng:120.160433,time:'10:30 — 11:30',desc:'201省道旁 · 白桦林人像与丁达尔光',type:'scenic',icon:'🌳',tags:['白桦','人像','门票'],img:'https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80'},
-  {id:'enhe',day:2,name:'恩和俄罗斯民族乡',lat:50.822878,lng:119.913790,time:'12:00 — 13:30',desc:'木刻楞建筑 · 列巴午餐',type:'scenic',icon:'🏡',tags:['俄式','人文','午餐'],img:'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80'},
+  {id:'enhe',day:2,name:'恩和俄罗斯民族乡',lat:50.822878,lng:119.913790,time:'12:00 — 13:30',desc:'木刻楞建筑 · 列巴午餐',type:'scenic',icon:'🏡',tags:['俄式','人文','午餐']},
   {id:'ka7',day:2,name:'七卡',lat:50.707756,lng:119.460300,noMarker:true},
   {id:'ka5',day:2,name:'五卡',lat:50.360932,lng:119.178117,noMarker:true},
-  {id:'wulan',day:2,name:'额尔古纳河乌兰山',lat:50.603812,lng:119.451961,time:'16:30 — 17:30',desc:'登高俯瞰河谷 · 可选滑草',type:'experience',icon:'⛰️',tags:['滑草','观景','门票'],img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'},
-  {id:'hst',day:2,name:'黑山头',lat:50.215675,lng:119.578229,time:'18:00 — 20:00',desc:'骑马看日落 · 住蒙古包',type:'stay',icon:'🐴',tags:['骑马','日落','蒙古包'],img:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80'},
+  {id:'hst',day:2,name:'黑山头',lat:50.215675,lng:119.578229,time:'17:30 入住',desc:'卡线沿途遇美景随时停车 · 住黑山头',type:'stay',icon:'🏕️',tags:['卡线','蒙古包']},
   {id:'hst2',day:3,name:'黑山头',lat:50.215675,lng:119.578229,time:'08:00',desc:'D3 出发 · 上午安排访牧户',type:'start',icon:'🏘️',noMarker:true,img:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80'},
   {id:'herder',day:3,name:'访牧户体验',lat:50.207944,lng:119.603094,time:'08:30 — 10:00',desc:'挤牛奶、喂羊羔、奶茶制作等',type:'experience',icon:'🐄',tags:['访牧户','约1.5h'],img:'https://images.unsplash.com/photo-1560493676-04071c709f99?w=800&q=80'},
-  {id:'rainbow',day:3,name:'186彩带河',lat:49.962573,lng:119.034798,time:'11:30 — 12:30',desc:'边防公路186公里处 · S形彩带河',type:'scenic',icon:'🌈',tags:['彩带河','登顶','门票'],img:'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80'},
+  {id:'rainbow',day:3,name:'186彩带河',lat:49.962573,lng:119.034798,time:'11:30 — 12:30',desc:'边防公路186公里处 · S形彩带河 · 可滑草',type:'scenic',icon:'🌈',tags:['彩带河','滑草','门票']},
   {id:'manzhouli',day:3,name:'满洲里',lat:49.575725,lng:117.442025,time:'15:00 抵达',desc:'国门 / 套娃 / 中苏街 · 俄式晚餐',type:'stay',icon:'🏛️',tags:['国门','套娃','西餐'],img:'https://images.unsplash.com/photo-1555992336-fb0d66d5fb7e?w=800&q=80'},
   {id:'mzl2',day:4,name:'满洲里',lat:49.575725,lng:117.442025,time:'上午自由逛',desc:'睡到自然醒 · 中饭后出发',type:'start',icon:'🏛️',noMarker:true,img:'https://images.unsplash.com/photo-1555992336-fb0d66d5fb7e?w=800&q=80'},
-  {id:'hulun',day:4,name:'金海岸旅游景点',lat:48.845359,lng:116.973026,time:'14:00 — 15:30',desc:'203省道 · 东庙嘎查 · 呼伦湖西岸金海岸',type:'scenic',icon:'🏖️',tags:['金海岸','东庙嘎查','门票'],img:'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800&q=80'},
+  {id:'hulun',day:4,name:'呼伦湖金海岸',lat:48.845359,lng:116.973026,time:'14:00 — 15:30',desc:'呼伦湖西岸金海岸 · 湖光草色',type:'scenic',icon:'🏖️',tags:['金海岸','呼伦湖','门票']},
   {id:'hailar2',day:4,name:'海拉尔',lat:49.234715,lng:119.824542,time:'17:30 抵达',desc:'蒙餐收官 · 手把肉 / 烤羊排',type:'stay',icon:'🏙️',noMarker:true,tags:['蒙餐','收官'],img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80'},
-  {id:'hle_dep',day:5,name:'海拉尔机场',lat:49.209297,lng:119.830312,time:'14:25 起飞',desc:'吉祥航空返沪 · 约 3h35m',type:'start',icon:'🛫',img:'https://images.unsplash.com/photo-1436491865339-d07a10a9a5a9?w=800&q=80'},
-  {id:'hongqiao',day:5,name:'上海虹桥 T2',lat:31.196029,lng:121.339775,time:'18:00 落地',desc:'行程圆满结束',type:'stay',icon:'🏠',img:'https://images.unsplash.com/photo-1539037116277-4db208946f6d?w=800&q=80'}
+  {id:'hle_dep',day:5,name:'海拉尔机场',lat:49.209297,lng:119.830312,time:'14:25 起飞',desc:'吉祥 HO2240 · 约 3h35m',type:'start',icon:'🛫'},
+  {id:'hongqiao',day:5,name:'上海虹桥 T2',lat:31.196029,lng:121.339775,time:'18:00 落地',desc:'行程圆满结束',type:'stay',icon:'🏠'}
 ];
 const ROUTES=[
-  {day:0,from:'jintie',to:'pudong',type:'drive',road:'内环 → S20'},
-  {day:0,from:'pudong',to:'hle_arr',type:'flight',dist:'2200km',time:'3h40m',road:'吉祥 HO1135'},
+  {day:1,from:'hle_arr',to:'hailar',road:'机场→市区',brief:true},
   {day:1,from:'hailar',to:'moergele',road:'S201'},
-  {day:1,from:'moergele',to:'shidi',road:'国道'},
+  {day:1,from:'moergele',to:'deer',road:'国道'},
+  {day:1,from:'deer',to:'shidi',road:'国道'},
   {day:1,from:'shidi',to:'eerge',road:'县道'},
   {day:2,from:'eerge2',to:'birch',road:'S201'},
   {day:2,from:'birch',to:'enhe',road:'乡道'},
   {day:2,from:'enhe',to:'ka7',road:'X904',brief:true},
-  {day:2,from:'ka7',to:'ka5',road:'卡线',roadNote:{label:'卡线 · 七卡→五卡',time:'14:30 — 16:00',desc:'仅走卡线这一段 · 沿额尔古纳河边防公路'},isKaxian:true},
-  {day:2,from:'ka5',to:'wulan',road:'X904',brief:true},
-  {day:2,from:'wulan',to:'hst',road:'X904'},
+  {day:2,from:'ka7',to:'ka5',road:'卡线',roadNote:{label:'卡线 · 七卡→五卡',time:'13:30 — 17:00',desc:'边防公路沿河风光 · 遇美景随时停车'},isKaxian:true},
+  {day:2,from:'ka5',to:'hst',road:'X904'},
   {day:3,from:'hst2',to:'herder',road:'镇区'},
   {day:3,from:'herder',to:'rainbow',road:'边防公路'},
   {day:3,from:'rainbow',to:'manzhouli',road:'省道+高速'},
   {day:4,from:'mzl2',to:'hulun',road:'沿湖'},
   {day:4,from:'hulun',to:'hailar2',road:'G301'},
-  {day:5,from:'hle_dep',to:'hongqiao',type:'flight',dist:'2200km',time:'3h35m',road:'吉祥航空'}
+  {day:5,from:'hle_dep',to:'hongqiao',type:'flight',dist:'2200km',time:'3h35m',road:'吉祥 HO2240'}
 ];
 const DAY_INFO={
-  0:{title:'D0 · 7/30 周四',route:'上海 → 海拉尔',subtitle:'近铁 → 浦东 → 海拉尔',color:'#bf5af2'},
-  1:{title:'D1 · 7/31 周五',route:'海拉尔 → 额尔古纳',subtitle:'莫尔格勒河 → 国家湿地公园 → 额尔古纳',color:'#0a84ff'},
-  2:{title:'D2 · 8/1 周六',route:'额尔古纳 → 黑山头',subtitle:'白桦林 → 恩和 → 卡线(七-五卡) → 乌兰山',color:'#30d158'},
-  3:{title:'D3 · 8/2 周日',route:'黑山头 → 满洲里',subtitle:'访牧户 → 186彩带河 → 满洲里',color:'#ff9f0a'},
-  4:{title:'D4 · 8/3 周一',route:'满洲里 → 海拉尔',subtitle:'上午满洲里 · 金海岸 → 海拉尔',color:'#ff453a'},
-  5:{title:'D5 · 8/4 周二',route:'海拉尔 → 上海',subtitle:'14:25 — 18:00 · 海拉尔 → 虹桥',color:'#bf5af2'}
+  1:{title:'D1 · 7/17 周四',route:'海拉尔 → 额尔古纳',subtitle:'莫尔格勒河 → 鹿园 → 国家湿地 → 额尔古纳',color:'#0a84ff'},
+  2:{title:'D2 · 7/18 周五',route:'额尔古纳 → 黑山头',subtitle:'白桦林 → 恩和 → 卡线（遇景即停）',color:'#30d158'},
+  3:{title:'D3 · 7/19 周六',route:'黑山头 → 满洲里',subtitle:'访牧户 → 186彩带河（可滑草）→ 满洲里',color:'#ff9f0a'},
+  4:{title:'D4 · 7/20 周日',route:'满洲里 → 海拉尔',subtitle:'上午满洲里 · 中饭后 → 呼伦湖金海岸',color:'#ff453a'},
+  5:{title:'返程 · 7/21 周一',route:'海拉尔 → 上海',subtitle:'14:25 — 18:00 · 海拉尔 → 虹桥 T2',color:'#bf5af2'}
 };
 const CTX_LABELS=[
   {text:'俄罗斯',lat:51.5,lng:119,size:14,color:'rgba(142,142,147,.5)',sp:4},
@@ -444,7 +439,7 @@ function fmtHM(min){
 }
 function recomputeDayStats(){
   const out={};
-  for(let d=0;d<=5;d++){
+  for(let d=1;d<=5;d++){
     const drives=ROUTES.filter(r=>r.day===d && r.type!=='flight');
     const driveDist=drives.reduce((sum,r)=>sum+(r.fallback?0:(r.realDist||0)),0);
     const driveDur=drives.reduce((sum,r)=>sum+(r.fallback?0:(r.realDur||0)),0);
@@ -563,8 +558,8 @@ async function loadRoutes(){
   SUMMARY.driveKm=Math.round(driveDist/1000);
   SUMMARY.driveDur=driveDur;
   recomputeDayStats();
-  // 飞行里程：页面展示的 2200km × 2（去+回）作为近似
-  const flyKm=2200*2;
+  // 飞行里程：返程单程约 2200km（去程落地即 D1 起点）
+  const flyKm=2200;
   const fmtH=(sec)=>{
     const m=Math.round(sec/60);
     const h=Math.floor(m/60),mm=m%60;
@@ -662,7 +657,7 @@ function drawRoutes(){
 function routeChainKeys(key){
   const rt=ROUTES.find(r=>r.from+'→'+r.to===key);
   if(!rt?.isKaxian)return[key];
-  return['enhe→ka7','ka7→ka5','ka5→wulan'].filter(k=>routeSegMap[k]);
+  return['enhe→ka7','ka7→ka5','ka5→hst'].filter(k=>routeSegMap[k]);
 }
 function applyRouteOpacity(){
   Object.entries(routeSegMap).forEach(([k,val])=>{
@@ -744,8 +739,8 @@ function renderTL(day){
   const el=document.getElementById('timeline');
   if(day==='all'){
     const fmtH=(sec)=>{const m=Math.round(sec/60),h=Math.floor(m/60),mm=m%60;return h?`${h}h${mm?mm+'m':''}`:`${mm}m`};
-    let h=`<div class="day-head"><h2>全程总览</h2><p>路线 D0–D5<br>(${dayStatText('all')})</p></div>`;
-    for(let d=0;d<=5;d++){const i=DAY_INFO[d];
+    let h=`<div class="day-head"><h2>全程总览</h2><p>D1–D4 游玩 · 7/21 返程<br>(${dayStatText('all')})</p></div>`;
+    for(let d=1;d<=5;d++){const i=DAY_INFO[d];
       h+=`<div class="overview-card" onclick="sel(${d})"><div class="oc-row"><span class="oc-dot" style="background:${i.color}"></span><div><div class="oc-title">${i.title}</div><div class="oc-sub">${i.route}<br>${i.subtitle}</div></div></div></div>`}
     el.innerHTML=h;return;
   }
