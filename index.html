@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<title>呼伦贝尔 · 4天4晚</title>
+<title>呼伦贝尔 · 5天4晚</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&display=swap" rel="stylesheet">
@@ -274,7 +274,7 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
   <div class="panel-top">
     <div class="eyebrow">Inner Mongolia · 2026</div>
     <h1>呼伦贝尔</h1>
-    <p class="meta">7/17 — 7/21 · 4 天 4 晚 · 上海虹桥 ⇄ 海拉尔</p>
+    <p class="meta">7/17 — 7/21 · 5 天 4 晚 · 上海虹桥 ⇄ 海拉尔</p>
   </div>
 
   <div class="panel-scroll">
@@ -284,18 +284,18 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
       </div>
       <div class="trip-grid">
         <div class="trip-leg">
-          <div class="lbl">去程 · 7/17 周四</div>
+          <div class="lbl">去程 · 7/17 周五</div>
           <div class="time">07:10 → 10:35</div>
           <div class="sub">厦航 MF8197 · 约 3h25m</div>
         </div>
         <div class="trip-leg">
-          <div class="lbl">返程 · 7/21 周一</div>
+          <div class="lbl">返程 · 7/21 周二</div>
           <div class="time">14:25 → 18:00</div>
           <div class="sub">吉祥 HO2240 · 约 3h35m</div>
         </div>
       </div>
       <div class="trip-foot">
-        <span style="font-size:11px;color:var(--label3)">请假 7/18 · 7/21</span>
+        <span style="font-size:11px;color:var(--label3)">请假 2 天 + outing 1 天</span>
         <span class="trip-price">¥3520<small>/人</small></span>
       </div>
     </div>
@@ -304,7 +304,7 @@ body{font-family:var(--sf);display:flex;height:100vh;height:100dvh;overflow:hidd
       <div class="metric"><div class="v" id="mDrive">—</div><div class="l">自驾</div></div>
       <div class="metric"><div class="v" id="mDriveT">—</div><div class="l">车程</div></div>
       <div class="metric"><div class="v" id="mFly">—</div><div class="l">飞行</div></div>
-      <div class="metric"><div class="v">4<small>天</small>4<small>晚</small></div><div class="l">行程</div></div>
+      <div class="metric"><div class="v">5<small>天</small>4<small>晚</small></div><div class="l">行程</div></div>
     </div>
 
     <div class="day-picker">
@@ -384,11 +384,11 @@ const ROUTES=[
   {day:5,from:'hle_dep',to:'hongqiao',type:'flight',dist:'2200km',time:'3h35m',road:'吉祥 HO2240'}
 ];
 const DAY_INFO={
-  1:{title:'D1 · 7/17 周四',route:'海拉尔 → 额尔古纳',subtitle:'莫尔格勒河 → 鹿园 → 国家湿地 → 额尔古纳',color:'#0a84ff'},
-  2:{title:'D2 · 7/18 周五',route:'额尔古纳 → 黑山头',subtitle:'白桦林 → 恩和 → 卡线（遇景即停）',color:'#30d158'},
-  3:{title:'D3 · 7/19 周六',route:'黑山头 → 满洲里',subtitle:'访牧户 → 186彩带河（可滑草）→ 满洲里',color:'#ff9f0a'},
-  4:{title:'D4 · 7/20 周日',route:'满洲里 → 海拉尔',subtitle:'上午满洲里 · 中饭后 → 呼伦湖金海岸',color:'#ff453a'},
-  5:{title:'返程 · 7/21 周一',route:'海拉尔 → 上海',subtitle:'14:25 — 18:00 · 海拉尔 → 虹桥 T2',color:'#bf5af2'}
+  1:{title:'D1 · 7/17 周五',route:'海拉尔 → 额尔古纳',subtitle:'莫尔格勒河 → 鹿园 → 国家湿地 → 额尔古纳',color:'#0a84ff'},
+  2:{title:'D2 · 7/18 周六',route:'额尔古纳 → 黑山头',subtitle:'白桦林 → 恩和 → 卡线（遇景即停）',color:'#30d158'},
+  3:{title:'D3 · 7/19 周日',route:'黑山头 → 满洲里',subtitle:'访牧户 → 186彩带河（可滑草）→ 满洲里',color:'#ff9f0a'},
+  4:{title:'D4 · 7/20 周一',route:'满洲里 → 海拉尔',subtitle:'上午满洲里 · 中饭后 → 呼伦湖金海岸',color:'#ff453a'},
+  5:{title:'返程 · 7/21 周二',route:'海拉尔 → 上海',subtitle:'14:25 — 18:00 · 海拉尔 → 虹桥 T2',color:'#bf5af2'}
 };
 const CTX_LABELS=[
   {text:'俄罗斯',lat:51.5,lng:119,size:14,color:'rgba(142,142,147,.5)',sp:4},
